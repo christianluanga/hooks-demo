@@ -1,38 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { useFormInput } from './hooks/useFormInput';
 
 const SaveButton = ()=> {
-  const [isOnline, setIsOnline] = useState(true);
+    const isOnline = useOnlineStatus();
 
-  useEffect(() => {
-    function handleOnline() {
-      setIsOnline(true);
-    }
-    function handleOffline() {
-      setIsOnline(false);
-    }
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+    const firstNameProps = useFormInput('Jane')
+    const { value: lastName, onChange: onLastNameChange} = useFormInput('Doe')
 
-  const handleSaveClick = ()=> {
-    alert(`Progress saved ✅`);
-  }
+    const fullName = `${firstNameProps.value} ${lastName}`
+    
+    const handleSaveClick = ()=> {
+      alert(`Progress saved for ${fullName} ✅`);
+    }
   
-  return (
-    <div>
-    <button
-      style={isOnline ? styles.button : styles.disabledButton}
-      disabled={!isOnline}
-      onClick={handleSaveClick}
-    >
-      {isOnline ? 'Save progress' : 'Reconnecting...'}
-    </button>
-  </div>
-  );
+    return (
+      <div>
+      <label style={styles.label}>
+        First name:
+        <input {...firstNameProps} style={styles.input} />
+      </label>
+      <label style={styles.label}>
+        Last name:
+        <input value={lastName} onChange={onLastNameChange} style={styles.input} />
+      </label>
+      <p style={styles.greeting}>
+        Good day, {fullName}.
+      </p>
+      <button
+        style={isOnline ? styles.button : styles.disabledButton}
+        disabled={!isOnline}
+        onClick={handleSaveClick}
+      >
+        {isOnline ? 'Save progress' : 'Reconnecting...'}
+      </button>
+    </div>
+    );
 }
 
 const styles = {
